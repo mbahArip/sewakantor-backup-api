@@ -34,13 +34,15 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 			});
 
 		const bookings = dataResponse.bookings.filter((booking) => {
-			const data = parseJsonValue(booking);
+			const flatten = JSON.stringify(booking);
+			const data = JSON.parse(flatten);
 			return data.type.toLowerCase().includes(type.toLowerCase());
 		});
 
 		const available = [];
 		bookings.forEach((booking) => {
-			const data = parseJsonValue(booking);
+			const flatten = JSON.stringify(booking);
+			const data = JSON.parse(flatten);
 			const currentDate = new Date(date);
 			const startDate = new Date(data.startDate);
 			const endDate = new Date(data.endDate);
