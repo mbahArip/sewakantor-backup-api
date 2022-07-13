@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum AdminRole {
+  SUPER
+  ADMIN
+}
+
+model Admin {
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  email         String @unique
+  password      String
+  joinedAt      DateTime @default(now())
+  role          String @default("ADMIN")
+  avatar        String?
+  companyName   String?
+  companyEmail  String?
+  country       String?
+  zipcode       Int?
+  address       String?
+}
+
+model User {
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  email         String @unique
+  password      String
+  joinedAt      DateTime @default(now())
+  avatar        String?
+  birthday      DateTime?
+  companyName   String?
+  companyEmail  String?
+  country       String?
+  zipcode       Int?
+  address       String?
+  myReviews     Reviews[] @relation("ReviewsUser")
+  myBookings    Bookings[] @relation("BookingsUser")
+}
+
+model Spaces {
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  name          String
+  address       String
+  description   String
+  accessHours   Json
+  nearbyPlaces  Json[]
+  facilities    String[]
+  types         Json[]
+  images        String[]
+  roomplan      String
+  reviews       Reviews[] @relation("ReviewsSpace")
+  bookings      Bookings[] @relation("BookingsSpace")
+  savedBy       String[] @default([])
+}
+
+model Bookings {
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  space         Spaces @relation("BookingsSpace", fields: [spaceId], references: [id])
+  spaceId       String
+  user          User @relation("BookingsUser", fields: [userId], references: [id])
+  userId        String
+  type          String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  startDate     DateTime
+  endDate       DateTime
+}
+
+model Reviews {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  space         Spaces @relation("ReviewsSpace", fields: [spaceId], references: [id]) 
+  spaceId       String
+  user          User @relation("ReviewsUser", fields: [userId], references: [id])
+  userId        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  rating        Int
+  comment       String
+  reply         String @default("")
+}
